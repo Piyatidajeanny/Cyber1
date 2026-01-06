@@ -10,7 +10,7 @@ export default function FilesPage() {
 
   useEffect(() => {
     (async () => {
-      const res = await fetch("/api/session/me");
+      const res = await fetch("/api/session/me", { credentials: "include" });
       const j = await res.json();
       if (j.ok) setProgress(j.progress);
       else setProgress({ A: false, B: false, C: false });
@@ -40,15 +40,15 @@ export default function FilesPage() {
         <CaseCard
           title="แฟ้ม B: ผู้รับที่ไม่เคยมีอยู่"
           subtitle="ระบบยืนยันตัวตนจากสิ่งที่ ‘ไม่น่าถูกใช้’ เป็นตัวตน คุณต้องหาว่ามันเชื่ออะไรอยู่"
-          href="/files/b"
-          status={progress ? st(progress.B) : "OPEN"}
+          href={progress?.A ? "/files/b" : "#"}
+          status={progress ? (progress.A ? st(progress.B) : "LOCKED") : "OPEN"}
           tag="Identity / Behavior"
         />
         <CaseCard
           title="แฟ้ม C: แฟ้มภายใน"
           subtitle="บางสิ่งถูกล็อกไว้ด้วย “โครงสร้างองค์กร” แต่โครงสร้างนั้นอาจเป็นเพียงคำกล่าวอ้าง"
-          href="/files/c"
-          status={progress ? st(progress.C) : "OPEN"}
+          href={progress?.B ? "/files/c" : "#"}
+          status={progress ? (progress.B ? st(progress.C) : "LOCKED") : "OPEN"}
           tag="Access / Policy"
         />
       </div>

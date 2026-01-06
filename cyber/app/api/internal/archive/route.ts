@@ -17,6 +17,20 @@ export async function GET(req: Request) {
     return Response.json({ ok: false, error: "BAD_SESSION" }, { status: 400 });
   }
 
+  // ✅ ต้องผ่านด่าน B ก่อน
+  const progress = (session.progress ?? { A: false, B: false, C: false }) as Progress;
+  if (!DEV_MODE && !progress.B) {
+    return Response.json(
+      {
+        ok: false,
+        error: "LOCKED",
+        message: "ยังปลดล็อกไม่ได้: ต้องผ่านด่าน B ก่อน",
+        hint: "ลองไปแฟ้ม B ก่อนที่จะมาที่นี่",
+      },
+      { status: 403 }
+    );
+  }
+
   // ✅ เงื่อนไขผ่านจริง
   const institute = req.headers.get("x-institute");
 
@@ -43,8 +57,9 @@ export async function GET(req: Request) {
 
   cookieStore.set(COOKIE_NAME, JSON.stringify(session), {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: false,
     path: "/",
+    secure: false,
   });
 
   return Response.json({

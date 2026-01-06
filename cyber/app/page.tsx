@@ -10,7 +10,7 @@ export default function HomePage() {
     setLoading(true);
     setMsg(null);
     try {
-      const res = await fetch("/api/session/start", { method: "POST" });
+      const res = await fetch("/api/session/start", { method: "POST", credentials: "include" });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error || "START_FAILED");
       window.location.href = "/files";
