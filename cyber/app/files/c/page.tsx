@@ -11,7 +11,7 @@ export default function FileCPage() {
     setFlag(null);
 
     // ✅ ตั้งใจ "ไม่ส่ง header" เพื่อให้เป็นด่านจริง
-    const res = await fetch("/api/internal/archive", { method: "GET" });
+    const res = await fetch("/api/internal/archive", { method: "GET", credentials: "include" });
     const j = await res.json();
 
     if (j.ok) {

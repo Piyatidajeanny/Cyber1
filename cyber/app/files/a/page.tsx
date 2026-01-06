@@ -18,6 +18,7 @@ export default function FileAPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ caseId: "A", input }),
+        credentials: "include",
       });
       const j = await res.json();
 

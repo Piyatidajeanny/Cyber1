@@ -53,8 +53,9 @@ export async function POST(req: Request) {
 
   cookieStore.set(COOKIE_NAME, JSON.stringify(session), {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: false,
     path: "/",
+    secure: false,
   });
 
   return Response.json({

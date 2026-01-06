@@ -16,8 +16,9 @@ export async function POST() {
   const cookieStore = await cookies(); // ✅ ต้อง await
   cookieStore.set(COOKIE_NAME, JSON.stringify(initial), {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: false,
     path: "/",
+    secure: false,
   });
 
   return Response.json({ ok: true, ...initial });

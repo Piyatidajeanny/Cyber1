@@ -14,7 +14,7 @@ export default function BoardPage() {
       setLoading(true);
       setErr(null);
       try {
-        const res = await fetch("/api/evidence/list");
+        const res = await fetch("/api/evidence/list", { credentials: "include" });
         const j = await res.json();
         if (!j.ok) throw new Error(j.error || "LOAD_FAILED");
         setItems(j.items || []);
