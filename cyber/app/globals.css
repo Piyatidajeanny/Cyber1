@@ -1,0 +1,251 @@
+:root{
+  --bg: #07070b;
+  --panel: rgba(255,255,255,0.055);
+  --panel2: rgba(255,255,255,0.085);
+  --border: rgba(255,255,255,0.14);
+
+  --text: rgba(255,255,255,0.94);
+  --muted: rgba(255,255,255,0.70);
+  --soft: rgba(255,255,255,0.50);
+
+  --accent: #ff1b55;
+  --accentDeep: #b3002d;
+  --accentGlow: rgba(255,27,85,0.28);
+
+  --shadow: 0 12px 30px rgba(0,0,0,0.38);
+  --radius: 18px;
+  --radius2: 26px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans Thai", "Noto Sans", "Helvetica Neue", sans-serif;
+}
+
+*{ box-sizing: border-box; }
+html, body{ height: 100%; }
+body{
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--text);
+  background:
+    radial-gradient(1200px 700px at 20% 10%, var(--accentGlow), transparent 58%),
+    radial-gradient(900px 520px at 80% 24%, rgba(255,27,85,0.14), transparent 60%),
+    radial-gradient(900px 600px at 50% 92%, rgba(255,255,255,0.05), transparent 62%),
+    var(--bg);
+}
+
+a{ color: inherit; text-decoration: none; }
+a:hover{ text-decoration: underline; }
+
+.container{
+  width: min(1100px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 28px 0 80px;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+}
+.brandMark{
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), rgba(255,27,85,0.25));
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.brandMark::after{
+  content:"";
+  position:absolute; inset: 9px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.35);
+}
+.brandTitle{ line-height: 1.05; }
+.brandTitle strong{
+  display:block;
+  letter-spacing: 0.2px;
+  font-size: 18px;
+}
+.brandTitle span{
+  display:block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.nav{
+  display:flex; gap: 10px; flex-wrap: wrap;
+}
+.nav a{
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+}
+.nav a:hover{
+  background: rgba(255,255,255,0.08);
+  text-decoration: none;
+}
+
+.hero{
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  box-shadow: var(--shadow);
+  padding: 26px;
+  overflow: hidden;
+  position: relative;
+}
+.hero::before{
+  content:"";
+  position:absolute;
+  width: 520px; height: 520px;
+  right: -220px; top: -260px;
+  background: radial-gradient(circle, rgba(255,27,85,0.22), transparent 62%);
+  filter: blur(2px);
+}
+.hero h1{
+  margin: 0 0 10px;
+  font-size: 34px;
+  letter-spacing: 0.2px;
+}
+.hero p{
+  margin: 0 0 18px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 64ch;
+}
+
+.row{ display:flex; gap: 12px; flex-wrap: wrap; }
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: transform 0.06s ease, background 0.15s ease;
+}
+.btn:hover{ background: rgba(255,255,255,0.10); text-decoration:none; }
+.btn:active{ transform: translateY(1px); }
+
+.btnPrimary{
+  border-color: rgba(255,27,85,0.65);
+  background: linear-gradient(135deg, var(--accent), rgba(255,27,85,0.35));
+  box-shadow: 0 14px 34px rgba(255,27,85,0.12);
+}
+.btnPrimary:hover{
+  background: linear-gradient(135deg, rgba(255,27,85,1), rgba(255,27,85,0.48));
+}
+.btnPrimary:active{
+  background: linear-gradient(135deg, rgba(179,0,45,1), rgba(255,27,85,0.38));
+}
+
+.grid{ display:grid; gap: 14px; }
+.grid3{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid2{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+@media (max-width: 920px){
+  .grid3{ grid-template-columns: 1fr; }
+  .grid2{ grid-template-columns: 1fr; }
+}
+
+.card{
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+  padding: 16px;
+  transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.card:hover{
+  transform: translateY(-1px);
+  border-color: rgba(255,27,85,0.35);
+  background: rgba(255,255,255,0.06);
+  text-decoration: none;
+}
+
+.cardTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.card h3{ margin: 0; font-size: 16px; }
+.card p{
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 13px;
+}
+
+.badge{
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--soft);
+  background: rgba(0,0,0,0.2);
+}
+.badgeOk{
+  border-color: rgba(16,185,129,0.55);
+  color: rgba(167,243,208,0.95);
+  background: rgba(16,185,129,0.10);
+}
+.badgeLocked{
+  border-color: rgba(255,27,85,0.55);
+  color: rgba(255,180,195,0.95);
+  background: rgba(255,27,85,0.10);
+}
+
+.hint{
+  border: 1px dashed rgba(255,27,85,0.55);
+  background: rgba(255,27,85,0.08);
+  border-radius: 16px;
+  padding: 12px 14px;
+  color: rgba(255,210,220,0.95);
+}
+.hint strong{ display:block; margin-bottom: 4px; }
+
+.stamp{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,27,85,0.40);
+  background: rgba(255,27,85,0.08);
+  color: rgba(255,200,210,0.95);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.stampDot{
+  width:10px; height:10px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 6px rgba(255,27,85,0.18);
+}
+
+.mono{ font-family: var(--mono); }
+
+.flagRed{
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow:
+    0 0 8px rgba(255,27,85,0.35),
+    0 0 16px rgba(255,27,85,0.25);
+}
