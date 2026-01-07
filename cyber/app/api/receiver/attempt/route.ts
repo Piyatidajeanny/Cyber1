@@ -50,19 +50,17 @@ export async function POST() {
     return Response.json({ ok: false, error: "BAD_SESSION" }, { status: 400 });
   }
 
-  // สุ่ม Auth Method (ครั้งแรกเท่านั้น)
-  if (!session.authMethod) {
-    const randomMethod = AUTH_METHODS[Math.floor(Math.random() * AUTH_METHODS.length)];
-    session.authMethod = randomMethod;
-    session.authAttempts = 0;
+  // สุ่ม Auth Method ใหม่ทุกครั้งที่เรียก
+  const randomMethod = AUTH_METHODS[Math.floor(Math.random() * AUTH_METHODS.length)];
+  session.authMethod = randomMethod;
+  session.authAttempts = 0;
 
-    cookieStore.set(COOKIE_NAME, JSON.stringify(session), {
-      httpOnly: true,
-      sameSite: false,
-      path: "/",
-      secure: false,
-    });
-  }
+  cookieStore.set(COOKIE_NAME, JSON.stringify(session), {
+    httpOnly: true,
+    sameSite: false,
+    path: "/",
+    secure: false,
+  });
 
   const method = session.authMethod as AuthMethod;
   const challenge = AUTH_CHALLENGES[method];
