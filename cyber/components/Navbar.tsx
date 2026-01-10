@@ -6,6 +6,7 @@ export default function Navbar() {
   const [busy, setBusy] = useState(false);
 
   async function reset() {
+    if (!confirm("ต้องการรีเซ็ตข้อมูลการสืบสวนทั้งหมดหรือไม่?")) return;
     try {
       setBusy(true);
       await fetch("/api/session/reset", { method: "POST" });
@@ -17,40 +18,41 @@ export default function Navbar() {
 
   return (
     <header className="header">
-      <div className="brand">
-        <div className="brandMark" />
-        <div className="brandTitle">
-          <strong>คดีสุรนารีเงา</strong>
-          <span>SUT Shadow Files • Detective CTF</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{
+          width: 48, height: 48,
+          background: "linear-gradient(135deg, var(--accent), #a855f7)",
+          borderRadius: 14,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontSize: 24,
+          boxShadow: "0 4px 10px rgba(99, 102, 241, 0.3)"
+        }}>
+          🔍
+        </div>
+        <div>
+          <strong style={{ fontSize: 20, color: "#1e293b", display: 'block', lineHeight: 1.1 }}>Cyber Case</strong>
+          <span style={{ fontSize: 13, color: "var(--muted)" }}>SUT Detective CTF</span>
         </div>
       </div>
 
-      <nav className="nav">
-        <a href="/">หน้าแรก</a>
-        <a href="/files">แฟ้มคดี</a>
-        <a href="/board">กระดานสืบสวน</a>
-        <a href="/ending">ตอนจบ</a>
-
-        {/* ปุ่มรีเซ็ต - ใช้สไตล์เดียวกับ nav */}
+      <nav style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <a href="/" className="btn" style={{ border: 'none', background: 'transparent', boxShadow: 'none' }}>Home</a>
+        <a href="/files" className="btn" style={{ border: 'none', background: 'transparent', boxShadow: 'none' }}>Files</a>
         <button
+          className="btn"
           onClick={reset}
           disabled={busy}
           style={{
-            padding: "10px 12px",
-            border: "1px solid rgba(255,255,255,0.14)",
-            borderRadius: 999,
-            background: "rgba(255,255,255,0.04)",
-            color: "rgba(255,255,255,0.92)",
-            cursor: busy ? "not-allowed" : "pointer",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.08)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)";
+            borderColor: "#fed7aa",
+            background: "#fff7ed",
+            color: "#c2410c",
+            minWidth: 100
           }}
         >
-          {busy ? "กำลังล้าง..." : "เริ่มใหม่"}
+          {busy ? "..." : "Reset"}
         </button>
       </nav>
     </header>

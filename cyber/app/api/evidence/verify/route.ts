@@ -2,12 +2,13 @@ import { cookies } from "next/headers";
 
 const COOKIE_NAME = "sut_case";
 
-// กติกาด่าน A (ตั้งใจให้ “เดายาก” นิดนึง แต่ยังเป็นมิตร)
-// คำตอบที่ถูก = "1990-SUT"  (ค.ศ. + คำย่อมหาลัย)
+// กติกาด่าน A (Puzzle AJPARIN -> อาจารย์ปริญญ์)
+// คำตอบที่ถูก = "อาจารย์ปริญญ์"
 function isValidEvidence(inputRaw: unknown): boolean {
   if (typeof inputRaw !== "string") return false;
-  const input = inputRaw.trim();
-  return input === "1990-SUT";
+  // ลบช่องว่างออกให้หมด เผื่อมี space แทรก
+  const norm = inputRaw.trim().replace(/\s+/g, "");
+  return norm === "อาจารย์ปริญญ์";
 }
 
 export async function POST(req: Request) {
@@ -34,13 +35,12 @@ export async function POST(req: Request) {
     return Response.json({ ok: false, error: "INVALID_CASE" }, { status: 400 });
   }
 
-  // ไม่ผ่าน: ส่ง hint แบบปั่น ๆ
+  // ไม่ผ่าน: ส่ง hint
   if (!isValidEvidence(input)) {
     return Response.json({
       ok: false,
       caseId: "A",
-      message: "คุณกำลังเชื่อปฏิทินผิดเล่ม (ลองคิดเรื่อง พ.ศ./ค.ศ.)",
-      hint: "คำตอบมักชอบอยู่ในรูปแบบ YEAR-TAG",
+      message: "คำตอบยังไม่ถูกต้อง... ลองสะกดให้ถูกต้อง",
     });
   }
 
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     ok: true,
     caseId: "A",
     unlocked: ["A_FLAG"],
-    message: "ลายเซ็นถูกต้อง…คุณเริ่มมองเห็น ‘ช่องโหว่ของความเชื่อ’ แล้ว",
-    flag: "FLAG{YEARS_ARE_RELATIVE}",
+    message: "ถูกต้อง! 'อาจารย์ปริญญ์' คือคำตอบสุดท้าย",
+    flag: "FLAG{AJ_PARIN_IS_THE_KEY}",
   });
 }
