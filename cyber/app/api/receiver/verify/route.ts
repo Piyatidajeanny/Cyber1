@@ -9,8 +9,11 @@ type AuthMethod = "PASSWORD" | "PIN" | "OTP" | "BIOMETRIC" | "LOCATION" | "MFA";
 // คำตอบที่ถูกต้องสำหรับแต่ละวิธี
 function checkAnswer(method: AuthMethod, input: string): boolean {
   const answers: Record<AuthMethod, (inp: string) => boolean> = {
-    PASSWORD: (inp) => inp.trim() === "1990@SUT",
-    PIN: (inp) => inp.trim() === "081433", // 8 ตึก, 14 คณะ, 33=พ.ศ.2533
+    PASSWORD: (inp) => {
+      const clean = inp.trim().toLowerCase();
+      return clean === "parinlovemanu" || clean === "ปริญญ์รักแมนยู";
+    },
+    PIN: (inp) => inp.trim() === "08933", // 8 ตึก, 9 สำนัก, 33=พ.ศ.2533
     OTP: (inp) => {
       // OTP = HHDDMM (ชั่วโมง+วัน+เดือน ปัจจุบัน)
       const now = new Date();
@@ -20,7 +23,7 @@ function checkAnswer(method: AuthMethod, input: string): boolean {
       const validOtp = hh + dd + mm;
       return inp.trim() === validOtp;
     },
-    BIOMETRIC: (inp) => inp.trim().toLowerCase() === "elephant" || inp.trim().toLowerCase() === "chang",
+    BIOMETRIC: (inp) => inp.trim().toLowerCase() === "ย่าโม" || inp.trim().toLowerCase() === "ท้าวสุรนารี",
     LOCATION: (inp) => {
       const clean = inp.trim();
       return clean === "14.88,102.02" || clean === "14.88,102.01";
@@ -30,7 +33,7 @@ function checkAnswer(method: AuthMethod, input: string): boolean {
         const data = JSON.parse(inp);
         return (
           data.year === "1990" &&
-          (data.buildings === "8" || data.buildings === "08") &&
+          (data.buildings === "9" || data.buildings === "09") &&
           data.province?.toLowerCase() === "nakhonratchasima"
         );
       } catch {
