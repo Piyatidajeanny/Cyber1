@@ -110,13 +110,21 @@ export default function FileBPage() {
           </div>
 
           {!flag && (
-            <div style={{
-              background: "white", padding: "10px 20px", borderRadius: 12,
-              boxShadow: "var(--shadow)", marginBottom: 40
-            }}>
-              <span style={{ fontSize: 16, color: "var(--muted)", marginRight: 10 }}>รูปแบบ:</span>
-              <code style={{ fontSize: 20, fontFamily: 'var(--mono)', color: "var(--accent)" }}>{challenge.example}</code>
-            </div>
+            <>
+              <div style={{
+                background: "white", padding: "20px 30px", borderRadius: 12,
+                boxShadow: "var(--shadow)", marginBottom: 20, maxWidth: 700
+              }}>
+                <div style={{ fontSize: 18, color: "var(--text)", lineHeight: 1.6 }}>{challenge.question}</div>
+              </div>
+              <div style={{
+                background: "#f0f9ff", padding: "10px 20px", borderRadius: 12,
+                marginBottom: 40
+              }}>
+                <span style={{ fontSize: 14, color: "var(--muted)", marginRight: 10 }}>ตัวอย่างรูปแบบ:</span>
+                <code style={{ fontSize: 16, fontFamily: 'var(--mono)', color: "var(--accent)" }}>{challenge.example}</code>
+              </div>
+            </>
           )}
 
           {!flag && (
