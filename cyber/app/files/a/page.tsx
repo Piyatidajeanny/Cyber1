@@ -387,6 +387,8 @@ export default function Page() {
     setTimeout(() => setStage(4), 900);
   }
 
+  const [casePassed, setCasePassed] = useState(false);
+
   async function submitFinal() {
     const ans = finalInput.trim().toUpperCase().replace(/\s+/g, "");
     try {
@@ -396,7 +398,10 @@ export default function Page() {
         body: JSON.stringify({ caseId: "A", input: ans }),
       });
       const j = await res.json();
-      if (j.ok) setFinalMsg({ type: "ok", text: j.message || "ไขคดีสำเร็จ!" });
+      if (j.ok) {
+        setFinalMsg({ type: "ok", text: j.message || "ไขคดีสำเร็จ!" });
+        setCasePassed(true);
+      }
       else setFinalMsg({ type: "err", text: j.message || "คำตอบยังไม่ถูกต้อง" });
     } catch (e) {
       setFinalMsg({ type: "err", text: "เกิดข้อผิดพลาดในการเชื่อมต่อ" });
@@ -456,9 +461,9 @@ export default function Page() {
       </div>
 
       <div className="hero" style={{ marginBottom: 30, padding: 30 }}>
-        <h1>Cyber Security</h1>
+        <h1>Case A: ลายเซ็นเงา</h1>
         <p style={{ margin: "10px 0 20px" }}>
-          ตามหาชิ้นส่วนรหัสลับ 3 ชิ้น จากปริศนาในห้องเรียนเพื่อกู้คืนรหัสของอาจารย์
+          หลักฐานถูกจัดรูปแบบผิด... ตามหาชิ้นส่วนรหัสลับ 3 ชิ้น จากปริศนาในห้องเรียนเพื่อแก้ไขความถูกต้อง
         </p>
 
         {/* Status Bar inside Hero */}
@@ -762,7 +767,7 @@ export default function Page() {
 
             {s3Msg && <AlertMsg type={s3Msg.type} text={s3Msg.text} />}
 
-            
+
           </Card>
         )}
 
@@ -835,6 +840,18 @@ export default function Page() {
             )}
 
             {finalMsg && <AlertMsg type={finalMsg.type} text={finalMsg.text} />}
+            
+            {casePassed && (
+              <div style={{ textAlign: "center", marginTop: 24 }}>
+                <a 
+                  href="/files/b" 
+                  className="btn btnPrimary" 
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "16px 32px", fontSize: 18 }}
+                >
+                  🔓 ไปคดี B: ผู้รับที่สาบสูญ →
+                </a>
+              </div>
+            )}
           </Card>
         )}
       </div>

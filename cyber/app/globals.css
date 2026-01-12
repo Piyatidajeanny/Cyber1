@@ -1,4 +1,4 @@
-:root{
+:root {
   /* Theme: Vivid & Clean */
   --bg: #f8fafc;
   --panel: #ffffff;
@@ -9,14 +9,17 @@
   --soft: #94a3b8;
 
   /* Accent: Vivid Indigo -> Blue */
-  --accent: #6366f1;         /* Indigo 500 */
-  --accentHover: #4f46e5;    /* Indigo 600 */
-  --accentLight: #e0e7ff;    /* Indigo 100 */
+  --accent: #6366f1;
+  /* Indigo 500 */
+  --accentHover: #4f46e5;
+  /* Indigo 600 */
+  --accentLight: #e0e7ff;
+  /* Indigo 100 */
   --accentGlow: rgba(99, 102, 241, 0.4);
 
-  --shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+  --shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
   --shadowHover: 0 20px 40px -10px rgba(99, 102, 241, 0.25);
-  
+
   --radius: 24px;
   --radius-sm: 16px;
 
@@ -24,14 +27,20 @@
   --sans: "Outfit", system-ui, -apple-system, sans-serif;
 }
 
-*{ box-sizing: border-box; }
-html, body{ height: 100%; }
+* {
+  box-sizing: border-box;
+}
 
-body{
+html,
+body {
+  height: 100%;
+}
+
+body {
   margin: 0;
   font-family: var(--sans);
   color: var(--text);
-  background: 
+  background:
     radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
     radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
     radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
@@ -40,16 +49,23 @@ body{
   line-height: 1.6;
 }
 
-a{ color: inherit; text-decoration: none; transition: color 0.1s; }
-a:hover{ color: var(--accent); }
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.1s;
+}
 
-.container{
+a:hover {
+  color: var(--accent);
+}
+
+.container {
   width: min(1000px, calc(100% - 40px));
   margin: 0 auto;
   padding: 40px 0 100px;
 }
 
-.header{
+.header {
   margin-bottom: 24px;
   display: flex;
   justify-content: space-between;
@@ -57,7 +73,7 @@ a:hover{ color: var(--accent); }
 }
 
 /* --- Hero & Headers --- */
-.hero{
+.hero {
   background: var(--panel);
   border-radius: var(--radius);
   padding: 40px;
@@ -66,7 +82,8 @@ a:hover{ color: var(--accent); }
   margin-bottom: 30px;
   border: 1px solid white;
 }
-.hero h1{
+
+.hero h1 {
   font-size: 42px;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -75,7 +92,8 @@ a:hover{ color: var(--accent); }
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.hero p{
+
+.hero p {
   font-size: 18px;
   color: var(--muted);
   max-width: 600px;
@@ -83,7 +101,7 @@ a:hover{ color: var(--accent); }
 }
 
 /* --- Buttons --- */
-.btn{
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -97,35 +115,56 @@ a:hover{ color: var(--accent); }
   color: var(--text);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
-.btn:hover{
+
+.btn:hover {
   border-color: var(--accent);
   color: var(--accent);
   transform: translateY(-2px);
   box-shadow: 0 8px 12px rgba(99, 102, 241, 0.1);
 }
-.btn:active{ transform: translateY(0); }
 
-.btnPrimary{
+.btn:active {
+  transform: translateY(0);
+}
+
+.btnPrimary {
   border-color: transparent;
   background: linear-gradient(135deg, var(--accent), #8b5cf6);
   color: white;
   box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
 }
-.btnPrimary:hover{
+
+.btnPrimary:hover {
   color: white;
   background: linear-gradient(135deg, var(--accentHover), #7c3aed);
   box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
 }
 
 /* --- Cards --- */
-.grid{ display: grid; gap: 24px; }
-.grid3{ grid-template-columns: repeat(3, 1fr); }
-.grid2{ grid-template-columns: repeat(2, 1fr); }
-@media(max-width: 800px){ .grid3, .grid2{ grid-template-columns: 1fr; } }
+.grid {
+  display: grid;
+  gap: 24px;
+}
 
-.card{
+.grid3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media(max-width: 800px) {
+
+  .grid3,
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
   background: var(--panel);
   border-radius: var(--radius);
   padding: 24px;
@@ -134,24 +173,27 @@ a:hover{ color: var(--accent); }
   transition: all 0.25s ease;
   display: block;
 }
-.card:hover{
+
+.card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadowHover);
 }
-.cardTop{
+
+.cardTop {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 12px;
 }
 
-.card h3{
+.card h3 {
   margin: 0 0 8px;
   font-size: 20px;
   font-weight: 700;
   color: var(--text);
 }
-.card p{
+
+.card p {
   margin: 0;
   font-size: 15px;
   color: var(--muted);
@@ -159,7 +201,7 @@ a:hover{ color: var(--accent); }
 }
 
 /* --- Badges & Status --- */
-.badge{
+.badge {
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 600;
@@ -169,17 +211,21 @@ a:hover{ color: var(--accent); }
   color: var(--muted);
   border: 1px solid transparent;
 }
-.badgeOk{
+
+.badgeOk {
   background: #dcfce7;
   color: #15803d;
 }
-.badgeLocked{
+
+.badgeLocked {
   background: #fee2e2;
   color: #b91c1c;
 }
 
 /* --- Interactive Elements --- */
-.input, input[type="text"], input[type="password"] {
+.input,
+input[type="text"],
+input[type="password"] {
   background: #f8fafc;
   border: 2px solid var(--border);
   color: var(--text);
@@ -191,22 +237,27 @@ a:hover{ color: var(--accent); }
   font-size: 16px;
   transition: all 0.2s;
 }
-.input:focus, input:focus{
+
+.input:focus,
+input:focus {
   border-color: var(--accent);
   background: white;
   box-shadow: 0 0 0 4px var(--accentLight);
 }
 
-.hint{
+.hint {
   background: #fffbeb;
   border: 2px dashed #fcd34d;
   border-radius: var(--radius-sm);
   padding: 18px;
   color: #92400e;
 }
-.hint strong{ color: #b45309; }
 
-.stamp{
+.hint strong {
+  color: #b45309;
+}
+
+.stamp {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -219,16 +270,26 @@ a:hover{ color: var(--accent); }
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
-.stampDot{
-  width: 8px; height: 8px;
+
+.stampDot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: currentColor;
 }
 
 /* --- Utilities --- */
-.row{ display: flex; gap: 16px; flex-wrap: wrap; }
-.mono{ font-family: var(--mono); }
-.flagRed{
+.row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.flagRed {
   font-family: var(--mono);
   font-weight: bold;
   font-size: 18px;

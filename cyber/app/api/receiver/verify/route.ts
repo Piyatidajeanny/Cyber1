@@ -1,56 +1,40 @@
 import { cookies } from "next/headers";
 
 const COOKIE_NAME = "sut_case";
-const DEV_MODE = process.env.DEV_MODE === "true";
 
 type Progress = { A: boolean; B: boolean; C: boolean };
-type AuthMethod = "ACM" | "PERMISSION" | "RBAC" | "RULE" | "MLS" | "ABAC";
+type SubProgress = { B1: boolean; B2: boolean };
 
-// คำตอบที่ถูกต้องสำหรับแต่ละวิธี (พิจารณาเป็น puzzle แบบง่ายเพื่อการเรียนรู้)
-function checkAnswer(method: AuthMethod, input: string): boolean {
-  const v = (input || "").trim();
-  switch (method) {
-    case "ACM": {
-      // คาดรูปแบบ user:resource:permission
-      return v.toLowerCase() === "alice:archive:read";
-    }
-    case "PERMISSION": {
-      // คาด token/permission string
-      return v.toUpperCase() === "PERMIT_ARCHIVE" || v.toUpperCase() === "INTERNAL_ARCHIVE";
-    }
-    case "RBAC": {
-      // ต้องระบุบทบาทที่ถูกต้อง
-      return ["archivist", "admin", "staff"].includes(v.toLowerCase());
-    }
-    case "RULE": {
-      // กรณีพิเศษตามกฎ
-      return v === "UNLOCK_C" || v === "OPEN_C" || v === "ปลดล็อก_C";
-    }
-    case "MLS": {
-      // ระดับความลับ
-      return ["CONFIDENTIAL", "SECRET", "TOPSECRET"].includes(v.toUpperCase());
-    }
-    case "ABAC": {
-      // คาดเป็น JSON ของ attribute
-      try {
-        const data = JSON.parse(v);
-        return (
-          String(data.dept || "").toLowerCase() === "internal" &&
-          String(data.role || "").toLowerCase() === "archivist"
-        );
-      } catch {
-        return false;
-      }
-    }
-    default:
-      return false;
-  }
+// รหัสผ่านสุดท้ายที่ถูกต้อง: ajparinlovem4nch3st3runit3d
+// ajparinlove (จากด่าน A) + m4nch3st3r (ด่าน B1) + unit3d (ด่าน B2)
+function isValidPassword(inputRaw: unknown): boolean {
+  if (typeof inputRaw !== "string") return false;
+  const clean = inputRaw.trim().toLowerCase();
+  return clean === "ajparinlovem4nch3st3runit3d";
 }
 
 export async function POST(req: Request) {
   const cookieStore = await cookies();
-  const v = cookieStore.get(COOKIE_NAME)?.value;
-  if (!v) return Response.json({ ok: false, error: "NO_SESSION" }, { status: 401 });
+  let v = cookieStore.get(COOKIE_NAME)?.value;
+
+  // ถ้าไม่มี session ให้สร้างใหม่อัตโนมัติ
+  if (!v) {
+    const sid = crypto.randomUUID();
+    const initial = {
+      sid,
+      progress: { A: false, B: false, C: false },
+      subProgress: { B1: false, B2: false },
+      unlockedEvidence: [] as string[],
+      createdAt: new Date().toISOString(),
+    };
+    cookieStore.set(COOKIE_NAME, JSON.stringify(initial), {
+      httpOnly: true,
+      sameSite: false,
+      path: "/",
+      secure: false,
+    });
+    v = JSON.stringify(initial);
+  }
 
   let session: any;
   try {
@@ -61,15 +45,34 @@ export async function POST(req: Request) {
 
   // ✅ ต้องผ่านด่าน A ก่อน
   const progress = (session.progress ?? { A: false, B: false, C: false }) as Progress;
-  if (!DEV_MODE && !progress.A) {
+  if (!progress.A) {
     return Response.json(
       {
         ok: false,
-        message: "ยังปลดล็อกไม่ได้: ต้องผ่านด่าน A ก่อน",
-        hint: "ลองไปแฟ้ม A ก่อนที่จะมาที่นี่",
+        message: "⚠️ ยังปลดล็อกไม่ได้: ต้องผ่านด่าน A ก่อน",
+        hint: "ไปที่แฟ้ม A เพื่อหาหลักฐานก่อน",
       },
       { status: 403 }
     );
+  }
+
+  // ✅ ต้องผ่านด่านย่อย B1 และ B2 ก่อน
+  const subProgress = (session.subProgress ?? { B1: false, B2: false }) as SubProgress;
+  if (!subProgress.B1 || !subProgress.B2) {
+    const missing = [];
+    if (!subProgress.B1) missing.push("B1 (เมืองแห่งปีศาจแดง)");
+    if (!subProgress.B2) missing.push("B2 (คำที่ทำให้เป็นหนึ่ง)");
+    
+    return Response.json({
+      ok: false,
+      message: "⚠️ ยังไม่ครบ! ต้องหาชิ้นส่วนให้ครบก่อน",
+      missingParts: missing,
+      hint: "ไปที่ /api/receiver/b1 และ /api/receiver/b2 เพื่อหาชิ้นส่วน",
+      currentProgress: {
+        B1: subProgress.B1 ? "✅ ผ่านแล้ว" : "❌ ยังไม่ผ่าน",
+        B2: subProgress.B2 ? "✅ ผ่านแล้ว" : "❌ ยังไม่ผ่าน",
+      }
+    }, { status: 403 });
   }
 
   // ดึง input จาก body
@@ -81,14 +84,25 @@ export async function POST(req: Request) {
   }
 
   const { input } = body;
-  const method = session.authMethod as AuthMethod;
 
-  if (!method) {
-    return Response.json({ ok: false, error: "NO_AUTH_METHOD", message: "กด 'ฉันคือผู้รับ' ก่อนเพื่อรับโจทย์" });
+  if (!input) {
+    return Response.json({
+      ok: false,
+      message: "กรุณาใส่รหัสผ่านสุดท้าย",
+      hint: {
+        instruction: "รวมชิ้นส่วนทั้งหมดที่ได้มา:",
+        parts: [
+          `ด่าน A: "ajparinlove" (ความรักของอาจารย์ปริญญ์)`,
+          `ด่าน B1: "${session.b1Answer || 'man'}" → เติมคำ → manchester → m4nch3st3r`,
+          `ด่าน B2: "${session.b2Answer || 'u'}" → เติมคำ → united → unit3d`,
+        ],
+        format: "รวมกัน: ajparinlove + m4nch3st3r + unit3d"
+      }
+    });
   }
 
-  // ตรวจสอบคำตอบ
-  if (!checkAnswer(method, input || "")) {
+  // ตรวจสอบรหัสผ่าน
+  if (!isValidPassword(input)) {
     session.authAttempts = (session.authAttempts || 0) + 1;
     cookieStore.set(COOKIE_NAME, JSON.stringify(session), {
       httpOnly: true,
@@ -99,8 +113,9 @@ export async function POST(req: Request) {
 
     return Response.json({
       ok: false,
-      message: `ไม่ผ่าน: คำตอบไม่ถูกต้องสำหรับ ${method}`,
-      hint: `ลองใช้รูปแบบคำตอบตามคำใบ้ (ความพยายามครั้งที่ ${session.authAttempts})`,
+      message: `❌ รหัสผ่านไม่ถูกต้อง`,
+      hint: `เติมคำ: man→manchester, u→united แล้วแปลง leet: A→4, E→3 (ครั้งที่ ${session.authAttempts})`,
+      yourInput: input,
     });
   }
 
@@ -121,8 +136,61 @@ export async function POST(req: Request) {
   return Response.json({
     ok: true,
     unlocked: ["B_FLAG"],
-    message: `✅ ผ่าน ${method} Authentication แล้ว! คุณเข้าใจวิธีการยืนยันตัวตนแบบนี้`,
-    flag: "FLAG{SUT_AUTHORIZATION_MASTERED}",
-    method,
+    message: "🎉 ยินดีด้วย! คุณไขรหัสผ่านได้สำเร็จ!",
+    explanation: {
+      password: "ajparinlovem4nch3st3runit3d",
+      meaning: "AJ Parin loves Manchester United",
+      breakdown: [
+        "ajparinlove = อาจารย์ปริญญ์รัก",
+        "m4nch3st3r = Manchester (แบบ leet speak: A→4, E→3)",
+        "unit3d = United (แบบ leet speak: E→3)",
+      ]
+    },
+    flag: "FLAG{SUT_AUTHENTICATION_MASTERED}",
+    nextStep: "ไปต่อที่ด่าน C เพื่อหาหลักฐานชิ้นสุดท้าย!",
+  });
+}
+
+// GET สำหรับดูสถานะและคำใบ้
+export async function GET() {
+  const cookieStore = await cookies();
+  const v = cookieStore.get(COOKIE_NAME)?.value;
+
+  if (!v) {
+    return Response.json({
+      ok: false,
+      message: "ยังไม่มี session กรุณาเริ่มเกมก่อน",
+    });
+  }
+
+  let session: any;
+  try {
+    session = JSON.parse(v);
+  } catch {
+    return Response.json({ ok: false, error: "BAD_SESSION" });
+  }
+
+  const subProgress = session.subProgress ?? { B1: false, B2: false };
+
+  return Response.json({
+    caseId: "B",
+    title: "🔐 ด่าน B: รหัสผ่านลับ",
+    description: "รวมชิ้นส่วนจากด่านย่อยเพื่อสร้างรหัสผ่าน",
+    progress: {
+      B1: subProgress.B1 ? "✅ ผ่านแล้ว" : "❌ ยังไม่ผ่าน",
+      B2: subProgress.B2 ? "✅ ผ่านแล้ว" : "❌ ยังไม่ผ่าน",
+    },
+    collectedParts: {
+      fromA: "ajparinlove",
+      fromB1: subProgress.B1 ? (session.b1Answer || "man") : "???",
+      fromB2: subProgress.B2 ? (session.b2Answer || "u") : "???",
+    },
+    subStages: [
+      { id: "B1", endpoint: "/api/receiver/b1", title: "เมืองแห่งปีศาจแดง" },
+      { id: "B2", endpoint: "/api/receiver/b2", title: "คำที่ทำให้เป็นหนึ่ง" },
+    ],
+    hint: subProgress.B1 && subProgress.B2 
+      ? "🎉 ได้ชิ้นส่วนครบแล้ว! POST /api/receiver/verify พร้อม input รหัสผ่านที่รวมกัน"
+      : "ไปหาชิ้นส่วนจากด่านย่อยให้ครบก่อน",
   });
 }
