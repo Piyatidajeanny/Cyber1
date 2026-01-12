@@ -13,8 +13,25 @@ function isValidEvidence(inputRaw: unknown): boolean {
 
 export async function POST(req: Request) {
   const cookieStore = await cookies();
-  const v = cookieStore.get(COOKIE_NAME)?.value;
-  if (!v) return Response.json({ ok: false, error: "NO_SESSION" }, { status: 401 });
+  let v = cookieStore.get(COOKIE_NAME)?.value;
+  
+  // ถ้าไม่มี session ให้สร้างใหม่อัตโนมัติ
+  if (!v) {
+    const sid = crypto.randomUUID();
+    const initial = {
+      sid,
+      progress: { A: false, B: false, C: false },
+      unlockedEvidence: [] as string[],
+      createdAt: new Date().toISOString(),
+    };
+    cookieStore.set(COOKIE_NAME, JSON.stringify(initial), {
+      httpOnly: true,
+      sameSite: false,
+      path: "/",
+      secure: false,
+    });
+    v = JSON.stringify(initial);
+  }
 
   let session: any;
   try {
