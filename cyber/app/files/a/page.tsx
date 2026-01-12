@@ -2,12 +2,9 @@
 
 import React, { useMemo, useState } from "react";
 import {
-  Star,
-  Triangle,
-  Coffee,
   Projector,
   Calculator,
-  Mail,
+  KeyRound,
   Flag,
   CheckCircle2,
   ArrowLeft,
@@ -15,7 +12,7 @@ import {
 } from "lucide-react";
 
 type Stage = 1 | 2 | 3 | 4;
-type Seal = "STAR" | "TRI" | "CUP";
+
 
 function letterValueAZ(ch: string) {
   const c = ch.toUpperCase();
@@ -179,8 +176,8 @@ export default function Page() {
     setS2Attempts(0);
     setS2SetIdx(0);
 
-    setS3Seal(null);
-    setS3Files([]);
+    setS3SecretInput("");
+    setS3Unlocked(false);
     setS3Initials("");
     setS3Msg(null);
 
@@ -202,9 +199,9 @@ export default function Page() {
   const [s2Attempts, setS2Attempts] = useState(0);
   const [s2SetIdx, setS2SetIdx] = useState(0);
 
-  // ===== NEW: Stage 3 = เลือกซอง + เลือกไฟล์ที่ “ผ่านเกณฑ์” =====
-  const [s3Seal, setS3Seal] = useState<Seal | null>(null);
-  const [s3Files, setS3Files] = useState<string[]>([]);
+  // ===== NEW: Stage 3 = Digital Handshake =====
+  const [s3SecretInput, setS3SecretInput] = useState("");
+  const [s3Unlocked, setS3Unlocked] = useState(false);
   const [s3Initials, setS3Initials] = useState("");
   const [s3Msg, setS3Msg] = useState<{ type: "ok" | "err"; text: string } | null>(
     null
@@ -218,8 +215,8 @@ export default function Page() {
   const canGoFinal = piece1 && piece2 && piece3;
 
   // ===== Config =====
-  const stage1Cipher = "CP";
-  const stage1Credits = 2;
+  const stage1Cipher = "ER";
+  const stage1Credits = 4;
   const stage1Expected = "AN";
 
   // Stage 2 Configuration
@@ -231,51 +228,6 @@ export default function Page() {
   ];
   const stage2Mod = 10;
 
-  // Stage 3 Configuration
-  const stage3FilesAll = [
-    "Project_Proposal.pdf",
-    "Java_Lab.docx",
-    "Report_Final.pdf",
-    "Draft_Project.docx",
-    "ReportFinal.pdf",
-    "ProjectPhoto.png",
-  ];
-  const requiredPrefixesInOrder = ["Project", "Java", "Report"] as const;
-
-  // ===== Helpers for stage 3 =====
-  function parseFile(file: string) {
-    const dotIdx = file.lastIndexOf(".");
-    const ext = dotIdx >= 0 ? file.slice(dotIdx + 1).toLowerCase() : "";
-    const base = dotIdx >= 0 ? file.slice(0, dotIdx) : file;
-    const hasUnderscore = base.includes("_");
-    const prefix = hasUnderscore ? base.split("_")[0] : base; // ส่วนหน้าสุด
-    return { ext, base, hasUnderscore, prefix };
-  }
-
-  function isDocExt(ext: string) {
-    return ext === "pdf" || ext === "docx";
-  }
-
-  function isValidSubmittedFile(file: string) {
-    const { ext, hasUnderscore, prefix } = parseFile(file);
-    if (!isDocExt(ext)) return false;
-    if (!hasUnderscore) return false;
-    if (!requiredPrefixesInOrder.includes(prefix as any)) return false;
-    return true;
-  }
-
-  function expectedCodeFromSelectedFiles(files: string[]) {
-    const pickedPrefixes = files
-      .map((f) => parseFile(f).prefix)
-      .filter((p) => requiredPrefixesInOrder.includes(p as any));
-
-    const ordered = requiredPrefixesInOrder.filter((p) =>
-      pickedPrefixes.includes(p)
-    );
-
-    return ordered.map((p) => p[0].toUpperCase()).join(""); // PJR
-  }
-
   function togglePick2(word: string) {
     setS2Msg(null);
     setS2Picks((prev) => {
@@ -284,15 +236,6 @@ export default function Page() {
         return [prev[1], word];
       }
       return [...prev, word];
-    });
-  }
-
-  function toggleS3File(file: string) {
-    setS3Msg(null);
-    setS3Files((prev) => {
-      if (prev.includes(file)) return prev.filter((x) => x !== file);
-      if (prev.length >= 3) return prev;
-      return [...prev, file];
     });
   }
 
@@ -353,32 +296,16 @@ export default function Page() {
     setTimeout(() => setStage(3), 900);
   }
 
-  // ===== NEW: Stage 3 submit = seal + file filtering + ordering + code =====
   function submitStage3() {
-    if (s3Seal !== "STAR") {
-      return setS3Msg({ type: "err", text: "ซองที่เลือกไม่ใช่ของแท้ (ซีลไม่ตรงลายเซ็นอาจารย์)" });
+    if (!s3Unlocked) {
+      return setS3Msg({ type: "err", text: "กรุณา Verify Key Exchange ให้ผ่านก่อน" });
     }
 
-    if (s3Files.length !== 3) {
-      return setS3Msg({ type: "err", text: "ต้องเลือกไฟล์ให้ครบ 3 ไฟล์ (และเลือกได้สูงสุด 3)" });
-    }
-
-    // ตรวจว่าไฟล์ทั้ง 3 ผ่านกติกา
-    const invalid = s3Files.filter((f) => !isValidSubmittedFile(f));
-    if (invalid.length > 0) {
-      return setS3Msg({
-        type: "err",
-        text: `มีไฟล์ไม่ผ่านเกณฑ์: ${invalid.join(", ")} (ต้องเป็น .pdf/.docx + มี "_" + ขึ้นต้น Project/Java/Report)`,
-      });
-    }
-
-    const expected = expectedCodeFromSelectedFiles(s3Files);
     const ans = s3Initials.trim().toUpperCase().replace(/\s+/g, "");
-
-    if (ans !== expected) {
+    if (ans !== "PJR") {
       return setS3Msg({
         type: "err",
-        text: `รหัสไม่ถูกต้อง ลอง “เรียง Project → Java → Report” แล้วเอาอักษรแรกของ prefix (คาดว่า ${expected})`,
+        text: `รหัสไม่ถูกต้อง ไม่ใช่ "${ans}" ลองตรวจสอบไฟล์ที่มี Signature ตรงกับ Hash+Secret ดูใหม่`,
       });
     }
 
@@ -458,7 +385,7 @@ export default function Page() {
       <div className="hero" style={{ marginBottom: 30, padding: 30 }}>
         <h1>Case A: ลายเซ็นเงา</h1>
         <p style={{ margin: "10px 0 20px" }}>
-          หลักฐานถูกจัดรูปแบบผิด... ตามหาชิ้นส่วนรหัสลับ 3 ชิ้น จากปริศนาในห้องเรียนเพื่อแก้ไขความถูกต้อง
+          ตามหาชิ้นส่วนรหัสลับ 3 ชิ้น จากปริศนาในห้องเรียน
         </p>
 
         {/* Status Bar inside Hero */}
@@ -607,162 +534,192 @@ export default function Page() {
         {/* ===================== NEW STAGE 3 ===================== */}
         {stage === 3 && (
           <Card
-            title="ด่าน 3: ส่งซองงานลับ (2 ชั้น)"
-            subtitle="เลือกซองของแท้ + คัดไฟล์ที่ผ่านเกณฑ์ + สร้างรหัสจากลำดับการสอน"
-            icon={<Mail />}
+            title="ด่าน 3: The Silent Handshake"
+            subtitle="จูนคลื่นความถี่ลับและกู้คืนไฟล์จากสัญญาณที่ถูกเข้ารหัส"
+            icon={<KeyRound />}
           >
-            <div className="row" style={{ marginBottom: 14 }}>
-              <span className="stamp">ลายเซ็นอาจารย์: ★ (ดาวคะแนน)</span>
-              <span className="badge">เลือกซอง → เลือกไฟล์ 3 อัน → สร้างรหัส</span>
+            {/* Story / Intro */}
+            <div style={{ marginBottom: 24, fontSize: 15, lineHeight: 1.6, color: "var(--text)" }}>
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#f1f5f9", padding: 16, borderRadius: 12, borderLeft: "4px solid var(--accent)" }}>
+                <div style={{ background: "var(--accent)", color: "white", padding: 6, borderRadius: "50%" }}>
+                  <Projector size={18} />
+                </div>
+                <div>
+                  <strong>สถานการณ์:</strong> เราดักจับสัญญาณการสื่อสารระบุตัวตน (Handshake) ระหว่างเซิร์ฟเวอร์ได้
+                  แต่ข้อมูลถูกซ่อนอยู่ในคลื่นความถี่เฉพาะ คุณต้องปรับจูน <strong>Signal Tuner</strong> ให้ตรงกับค่า
+                  <strong>Shared Secret</strong> เพื่อเริ่มกระบวนการถอดรหัสไฟล์ (Decryption)
+                </div>
+              </div>
             </div>
 
-            {/* เลือกซอง */}
-            <div style={{ display: "grid", gap: 12, marginBottom: 18 }}>
-              {[
-                { id: "STAR" as const, icon: <Star size={28} />, label: "ซองสีแดง (มีซีล)" },
-                { id: "TRI" as const, icon: <Triangle size={28} />, label: "ซองสีฟ้า (มีซีล)" },
-                { id: "CUP" as const, icon: <Coffee size={28} />, label: "ซองสีน้ำตาล (มีซีล)" },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setS3Seal(item.id);
-                    setS3Msg(null);
-                    setS3Files([]);
-                    setS3Initials("");
-                  }}
-                  className="card"
-                  style={{
-                    margin: 0,
-                    padding: "18px 22px",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    cursor: "pointer",
-                    borderColor: s3Seal === item.id ? "var(--accent)" : "transparent",
-                    background: s3Seal === item.id ? "var(--accentLight)" : "var(--bg)",
-                  }}
-                >
-                  <span style={{ fontWeight: 700, fontSize: 16 }}>{item.label}</span>
-                  <span style={{ color: s3Seal === item.id ? "var(--accent)" : "var(--muted)" }}>
-                    {item.icon}
-                  </span>
-                </button>
-              ))}
+            {/* Part 1: Signal Tuner (Diffie-Hellman) */}
+            <div style={{ marginBottom: 30, padding: 24, background: "#1e293b", borderRadius: 16, color: "white", boxShadow: "0 10px 30px -10px rgba(0,0,0,0.5)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <span className="badge" style={{ background: "#334155", color: "#94a3b8", border: "1px solid #475569" }}>
+                  STEP 1: SIGNAL SYNCHRONIZATION
+                </span>
+                <div style={{ fontSize: 12, fontFamily: "var(--mono)", color: "#64748b" }}>
+                  PARAM: A=8, B=4, P=17
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 20, alignItems: "center" }}>
+                <div>
+                  <label style={{ display: "block", marginBottom: 12, fontSize: 14, color: "#cbd5e1" }}>
+                    จูนคลื่นความถี่ (Frequency Tuning)
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    value={s3SecretInput}
+                    onChange={(e) => {
+                      setS3SecretInput(e.target.value);
+                      // Auto-unlock if correct
+                      if (e.target.value === "16") {
+                        setS3Unlocked(true);
+                        setS3Msg(null);
+                      } else {
+                        setS3Unlocked(false);
+                      }
+                    }}
+                    style={{ width: "100%", accentColor: s3Unlocked ? "#22c55e" : "#3b82f6", height: 6, cursor: "pointer" }}
+                  />
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 12, color: "#64748b", fontFamily: "var(--mono)" }}>
+                    <span>0 Hz</span>
+                    <span>10 Hz</span>
+                    <span>20 Hz</span>
+                  </div>
+                </div>
+
+                <div style={{
+                  width: 80, height: 80,
+                  borderRadius: "50%",
+                  background: s3Unlocked ? "radial-gradient(circle, #22c55e 10%, #14532d 100%)" : "#0f172a",
+                  border: `3px solid ${s3Unlocked ? "#4ade80" : "#334155"}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  boxShadow: s3Unlocked ? "0 0 20px #22c55e" : "none",
+                  transition: "all 0.3s ease"
+                }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, fontFamily: "var(--mono)", color: s3Unlocked ? "white" : "#64748b" }}>
+                    {s3SecretInput || "0"}
+                  </div>
+                  <div style={{ fontSize: 9, color: s3Unlocked ? "#dcfce7" : "#475569" }}>
+                    {s3Unlocked ? "LOCKED" : "NO SIG"}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 16, padding: "10px 14px", background: "rgba(0,0,0,0.3)", borderRadius: 8, fontSize: 13, borderLeft: "3px solid #3b82f6" }}>
+                <span style={{ color: "#60a5fa" }}>💡 Hint:</span> ค่าความถี่ที่ถูกต้องคำนวณจากสูตร <code>(8^4) mod 17</code> ลองปรับจูนจนสัญญาณเปลี่ยนเป็นสีเขียว
+              </div>
             </div>
 
-            {/* เนื้อหาในซอง (แสดงเฉพาะซอง STAR เพื่อให้รู้สึกว่า “ของแท้”) */}
-            {s3Seal === "STAR" ? (
-              <div
-                style={{
-                  padding: 18,
-                  background: "#fff",
-                  borderRadius: 16,
-                  marginBottom: 18,
-                  border: "2px solid var(--border)",
-                }}
-              >
-                <div
-                  style={{
-                    marginBottom: 10,
-                    fontSize: 15,
-                    fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <FileText size={18} /> ไฟล์ในซอง (เลือกให้ได้ 3 ไฟล์ที่ “ผ่านเกณฑ์”)
-                </div>
+            {/* Part 2: File Decryption Table */}
+            <div style={{
+              opacity: s3Unlocked ? 1 : 0.6,
+              pointerEvents: s3Unlocked ? "auto" : "none",
+              transition: "opacity 0.5s ease"
+            }}>
+              <div style={{ marginBottom: 16 }}>
+                <span className="badge" style={{ background: "#dcfce7", color: "#166534", marginBottom: 8 }}>
+                  STEP 2: VERIFY INTEGRITY
+                </span>
+                <p style={{ margin: "4px 0 0", fontSize: 14 }}>
+                  ระบบกำลังถอดรหัส... ไฟล์ที่สมบูรณ์จะต้องมีค่า <code>Signature == (Hash + 16) % 10</code>
+                </p>
+                <p style={{ fontSize: 13, opacity: 0.7 }}>คลิกที่ไฟล์เพื่อตรวจสอบสถานะ (Verify)</p>
+              </div>
 
-                <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 10, lineHeight: 1.5 }}>
-                  เกณฑ์ผ่าน:
-                  <ul style={{ margin: "6px 0 0 18px" }}>
-                    <li>ต้องเป็นเอกสาร .pdf หรือ .docx</li>
-                    <li>ต้องมี "_" คั่นคำ</li>
-                    <li>ต้องขึ้นต้นด้วย Project / Java / Report</li>
-                  </ul>
-                </div>
+              <div style={{ display: "grid", gap: 10, marginBottom: 24 }}>
+                {[
+                  { id: "f1", name: "Project_Spec", hash: 41, sig: 7, valid: true },
+                  { id: "f2", name: "Admin_Key", hash: 55, sig: 5, valid: false }, // 55+16=71%10=1 != 5
+                  { id: "f3", name: "System_Log", hash: 20, sig: 9, valid: false }, // 20+16=36%10=6 != 9
+                  { id: "f4", name: "Java_Lib", hash: 12, sig: 8, valid: true },
+                  { id: "f5", name: "Report_Final", hash: 36, sig: 2, valid: true },
+                ].map((f) => {
+                  /* We use local state trick simply by checking if s3Initials includes a char or some UI toggle?
+                     Ideally we should have a 'verified list', but to keep it simple with existing state,
+                     we will just make them clickable visual elements. 
+                     Let's use a simple <details> or just toggle class.
+                     Actually, let's just show the data clearly so user can pick.
+                  */
+                  return (
+                    <div
+                      key={f.id}
+                      className="card-file-row"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "12px 16px",
+                        background: "white",
+                        border: "1px solid var(--border)",
+                        borderRadius: 10,
+                        cursor: "pointer"
+                      }}
+                      onClick={(e) => {
+                        // Just a visual feedback on click
+                        const el = e.currentTarget;
+                        el.style.borderColor = f.valid ? "#22c55e" : "#ef4444";
+                        el.style.background = f.valid ? "#f0fdf4" : "#fef2f2";
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{
+                          width: 36, height: 36,
+                          background: "#f1f5f9", borderRadius: 8,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          color: "#64748b"
+                        }}>
+                          <FileText size={18} />
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: 15 }}>{f.name}</div>
+                          <div style={{ fontSize: 12, fontFamily: "var(--mono)", color: "var(--muted)" }}>
+                            Hash: {f.hash} | Sig: {f.sig}
+                          </div>
+                        </div>
+                      </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr",
-                    gap: 10,
-                    marginTop: 10,
-                  }}
-                >
-                  {stage3FilesAll.map((f) => {
-                    const active = s3Files.includes(f);
-                    const meta = parseFile(f);
-                    const passes = isValidSubmittedFile(f);
-                    return (
-                      <button
-                        key={f}
-                        onClick={() => toggleS3File(f)}
-                        className="btn"
-                        style={{
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          height: 54,
-                          padding: "0 14px",
-                          borderColor: active ? "var(--accent)" : "var(--border)",
-                          background: active ? "var(--accentLight)" : "white",
-                          opacity: !active && s3Files.length >= 3 ? 0.6 : 1,
-                          cursor: !active && s3Files.length >= 3 ? "not-allowed" : "pointer",
-                        }}
-                        disabled={!active && s3Files.length >= 3}
-                      >
-                        <span style={{ fontFamily: "var(--mono)", fontSize: 14 }}>{f}</span>
-                        <span className="badge" style={{ fontSize: 12 }}>
-                          {passes ? "ผ่านเงื่อนไข" : "ไม่ผ่าน"} • {meta.ext || "?"} •{" "}
-                          {meta.hasUnderscore ? "_" : "no _"}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                      <div className="status-indicator">
+                        <span style={{ fontSize: 12, color: "var(--muted)" }}>คลิกเพื่อเช็ค</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
 
-                <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  <span className="badge">เลือกแล้ว: {s3Files.length}/3</span>
-                  {s3Files.length > 0 && (
-                    <span className="badge" style={{ fontFamily: "var(--mono)" }}>
-                      {s3Files.join(" | ")}
-                    </span>
-                  )}
-                </div>
-
-                <div style={{ marginTop: 14, fontSize: 14, opacity: 0.9 }}>
-                  ขั้นสุดท้าย: เรียงตามลำดับการสอน <b>Project → Java → Report</b> แล้วเอาอักษรแรกของ
-                  prefix มาต่อกัน
+              <div style={{
+                background: "#f8fafc",
+                padding: 20,
+                borderRadius: 16,
+                border: "1px dashed var(--border)",
+                textAlign: "center"
+              }}>
+                <label style={{ display: "block", marginBottom: 12, fontSize: 15, fontWeight: 600, color: "var(--text)" }}>
+                  นำอักษรตัวแรกของไฟล์ที่ "ถูกต้อง" มาเรียงกัน
+                </label>
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", maxWidth: 300, margin: "0 auto" }}>
+                  <input
+                    value={s3Initials}
+                    onChange={(e) => setS3Initials(e.target.value)}
+                    placeholder="รหัส 3 ตัวอักษร"
+                    style={{ ...inputCss, textAlign: "center", letterSpacing: 2, textTransform: "uppercase" }}
+                    maxLength={3}
+                  />
+                  <button onClick={submitStage3} className="btn btnPrimary" style={{ padding: "0 24px" }}>
+                    ยืนยัน
+                  </button>
                 </div>
               </div>
-            ) : s3Seal ? (
-              <div style={{ marginBottom: 18, opacity: 0.75, textAlign: "center" }}>
-                ซองนี้ไม่มีข้อมูลพอ… (ซีลไม่ใช่ของแท้)
-              </div>
-            ) : (
-              <div style={{ marginBottom: 18, opacity: 0.65, textAlign: "center" }}>
-                เลือกซองก่อนเพื่อดูข้อมูลด้านใน
-              </div>
-            )}
-
-            <div style={{ display: "flex", gap: 10 }}>
-              <input
-                value={s3Initials}
-                onChange={(e) => setS3Initials(e.target.value)}
-                placeholder="รหัส (3 ตัวอักษร)"
-                style={inputCss}
-                maxLength={5}
-              />
-              <button onClick={submitStage3} className="btn btnPrimary" style={{ padding: "0 32px" }}>
-                ส่งงาน
-              </button>
             </div>
 
             {s3Msg && <AlertMsg type={s3Msg.type} text={s3Msg.text} />}
-
-
           </Card>
         )}
 
