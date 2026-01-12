@@ -224,7 +224,7 @@ export default function FileBPage() {
       </div>
 
       <div className="hero" style={{ marginBottom: 30 }}>
-        <h1>คดี B: การยืนยันตัวตน</h1>
+        <h1>Case B: ผู้รับที่สาบสูญ</h1>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 10 }}>
           <ScanFace size={24} style={{ color: 'var(--accent)' }} />
           <p style={{ margin: 0 }}>Authentication Protocol</p>
