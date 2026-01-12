@@ -93,7 +93,7 @@ export default function FileCPage() {
       </div>
 
       <div className="hero" style={{ marginBottom: 30 }}>
-        <h1>คดี C: คลังข้อมูลภายใน</h1>
+        <h1>Case C: แฟ้มภายใน</h1>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 10 }}>
           <Server size={24} style={{ color: 'var(--accent)' }} />
           <p style={{ margin: 0 }}>Server-Side Authorization</p>
