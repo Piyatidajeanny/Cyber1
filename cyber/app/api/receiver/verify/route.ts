@@ -11,7 +11,7 @@ function checkAnswer(method: AuthMethod, input: string): boolean {
   const answers: Record<AuthMethod, (inp: string) => boolean> = {
     PASSWORD: (inp) => {
       const clean = inp.trim().toLowerCase();
-      return clean === "parinlovemanu" || clean === "ปริญญ์รักแมนยู";
+      return clean === "AJPARINlovem4nch3st3runit3d";
     },
     PIN: (inp) => inp.trim() === "08933", // 8 ตึก, 9 สำนัก, 33=พ.ศ.2533
     OTP: (inp) => {
@@ -23,7 +23,7 @@ function checkAnswer(method: AuthMethod, input: string): boolean {
       const validOtp = hh + dd + mm;
       return inp.trim() === validOtp;
     },
-    BIOMETRIC: (inp) => inp.trim().toLowerCase() === "ย่าโม" || inp.trim().toLowerCase() === "ท้าวสุรนารี",
+    BIOMETRIC: (inp) => inp.trim().toLowerCase() === "ช้าง" || inp.trim().toLowerCase() === "elephant",
     LOCATION: (inp) => {
       const clean = inp.trim();
       return clean === "14.88,102.02" || clean === "14.88,102.01";
