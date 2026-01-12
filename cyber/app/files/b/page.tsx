@@ -19,6 +19,7 @@ export default function FileBPage() {
   const [flag, setFlag] = useState<string | null>(null);
   const [challenge, setChallenge] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  
 
   async function getChallenge() {
     setLoading(true);
@@ -115,7 +116,27 @@ export default function FileBPage() {
                 background: "white", padding: "20px 30px", borderRadius: 12,
                 boxShadow: "var(--shadow)", marginBottom: 20, maxWidth: 700
               }}>
-                <div style={{ fontSize: 18, color: "var(--text)", lineHeight: 1.6 }}>{challenge.question}</div>
+                <div
+                  style={{
+                    fontSize: 18,
+                    lineHeight: 1.7,
+                    textAlign: "left",
+                    whiteSpace: "pre-line",
+                  }}
+                >
+                  {challenge.question.split("\n").map((line: string, i: number) => {
+                    const m = line.match(/^(\s*)(ด่าน\s*:|เรื่องราว:|สูตร PIN:|ข้อมูล:|ตัวอย่าง:|สูตร OTP:|📋 สร้าง JSON:|🎯 ภารกิจ: |คำใบ้:)(.*)$/);
+                    if (m) {
+                      return (
+                        <div key={i} style={{ textAlign: 'left' }}>
+                          <strong>{m[2]}</strong>
+                          {m[3]}
+                        </div>
+                      );
+                    }
+                    return <div key={i}>{line}</div>;
+                  })}
+                </div>
               </div>
               <div style={{
                 background: "#f0f9ff", padding: "10px 20px", borderRadius: 12,
