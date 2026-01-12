@@ -4,42 +4,47 @@ const COOKIE_NAME = "sut_case";
 const DEV_MODE = process.env.DEV_MODE === "true";
 
 type Progress = { A: boolean; B: boolean; C: boolean };
-type AuthMethod = "PASSWORD" | "PIN" | "OTP" | "BIOMETRIC" | "LOCATION" | "MFA";
+type AuthMethod = "ACM" | "PERMISSION" | "RBAC" | "RULE" | "MLS" | "ABAC";
 
-// คำตอบที่ถูกต้องสำหรับแต่ละวิธี
+// คำตอบที่ถูกต้องสำหรับแต่ละวิธี (พิจารณาเป็น puzzle แบบง่ายเพื่อการเรียนรู้)
 function checkAnswer(method: AuthMethod, input: string): boolean {
-  const answers: Record<AuthMethod, (inp: string) => boolean> = {
-    PASSWORD: (inp) => inp.trim() === "1990@SUT",
-    PIN: (inp) => inp.trim() === "081433", // 8 ตึก, 14 คณะ, 33=พ.ศ.2533
-    OTP: (inp) => {
-      // OTP = HHDDMM (ชั่วโมง+วัน+เดือน ปัจจุบัน)
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2, "0");
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const validOtp = hh + dd + mm;
-      return inp.trim() === validOtp;
-    },
-    BIOMETRIC: (inp) => inp.trim().toLowerCase() === "elephant" || inp.trim().toLowerCase() === "chang",
-    LOCATION: (inp) => {
-      const clean = inp.trim();
-      return clean === "14.88,102.02" || clean === "14.88,102.01";
-    },
-    MFA: (inp) => {
+  const v = (input || "").trim();
+  switch (method) {
+    case "ACM": {
+      // คาดรูปแบบ user:resource:permission
+      return v.toLowerCase() === "alice:archive:read";
+    }
+    case "PERMISSION": {
+      // คาด token/permission string
+      return v.toUpperCase() === "PERMIT_ARCHIVE" || v.toUpperCase() === "INTERNAL_ARCHIVE";
+    }
+    case "RBAC": {
+      // ต้องระบุบทบาทที่ถูกต้อง
+      return ["archivist", "admin", "staff"].includes(v.toLowerCase());
+    }
+    case "RULE": {
+      // กรณีพิเศษตามกฎ
+      return v === "UNLOCK_C" || v === "OPEN_C" || v === "ปลดล็อก_C";
+    }
+    case "MLS": {
+      // ระดับความลับ
+      return ["CONFIDENTIAL", "SECRET", "TOPSECRET"].includes(v.toUpperCase());
+    }
+    case "ABAC": {
+      // คาดเป็น JSON ของ attribute
       try {
-        const data = JSON.parse(inp);
+        const data = JSON.parse(v);
         return (
-          data.year === "1990" &&
-          (data.buildings === "8" || data.buildings === "08") &&
-          data.province?.toLowerCase() === "nakhonratchasima"
+          String(data.dept || "").toLowerCase() === "internal" &&
+          String(data.role || "").toLowerCase() === "archivist"
         );
       } catch {
         return false;
       }
-    },
-  };
-
-  return answers[method]?.(input) ?? false;
+    }
+    default:
+      return false;
+  }
 }
 
 export async function POST(req: Request) {
@@ -79,11 +84,7 @@ export async function POST(req: Request) {
   const method = session.authMethod as AuthMethod;
 
   if (!method) {
-    return Response.json({
-      ok: false,
-      error: "NO_AUTH_METHOD",
-      message: "กด 'ฉันคือผู้รับ' ก่อนเพื่อรับโจทย์",
-    });
+    return Response.json({ ok: false, error: "NO_AUTH_METHOD", message: "กด 'ฉันคือผู้รับ' ก่อนเพื่อรับโจทย์" });
   }
 
   // ตรวจสอบคำตอบ
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
     return Response.json({
       ok: false,
       message: `ไม่ผ่าน: คำตอบไม่ถูกต้องสำหรับ ${method}`,
-      hint: `ลองตรวจสอบข้อมูลเกี่ยวกับ มทส. อีกครั้ง (ความพยายามครั้งที่ ${session.authAttempts})`,
+      hint: `ลองใช้รูปแบบคำตอบตามคำใบ้ (ความพยายามครั้งที่ ${session.authAttempts})`,
     });
   }
 
@@ -121,7 +122,7 @@ export async function POST(req: Request) {
     ok: true,
     unlocked: ["B_FLAG"],
     message: `✅ ผ่าน ${method} Authentication แล้ว! คุณเข้าใจวิธีการยืนยันตัวตนแบบนี้`,
-    flag: "FLAG{SUT_AUTHENTICATION_MASTERED}",
+    flag: "FLAG{SUT_AUTHORIZATION_MASTERED}",
     method,
   });
 }
