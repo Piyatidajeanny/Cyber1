@@ -7,7 +7,6 @@ import {
   ArrowRight,
   CheckCircle2,
   XCircle,
-  Lightbulb,
   Trophy,
   Puzzle,
   Key,
@@ -29,8 +28,6 @@ export default function FileBPage() {
   const [isError, setIsError] = useState(false);
   const [flag, setFlag] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  
-  const [hintLevel, setHintLevel] = useState(0);
   
   // B2 Interactive Grid State (5x5 grid)
   const [gridSelected, setGridSelected] = useState<boolean[]>(Array(25).fill(false));
@@ -88,7 +85,6 @@ export default function FileBPage() {
         setB1Passed(true);
         setMsg(j.message);
         setIsError(false);
-        setHintLevel(0);
       } else {
         setMsg(j.message || "ยังไม่ถูกต้อง");
         setIsError(true);
@@ -116,7 +112,6 @@ export default function FileBPage() {
         setB2Passed(true);
         setMsg(j.message);
         setIsError(false);
-        setHintLevel(0);
       } else {
         setMsg(j.message || "ยังไม่ถูกต้อง");
         setIsError(true);
@@ -136,7 +131,7 @@ export default function FileBPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ answer: finalAnswer }),
+        body: JSON.stringify({ input: finalAnswer }),
       });
       const j = await res.json();
       
@@ -154,61 +149,7 @@ export default function FileBPage() {
     }
   }
 
-  // ===== HINTS =====
-  const b1Hints = [
-    { title: "คำใบ้ 1", text: "T9 Keypad คือปุ่มโทรศัพท์รุ่นเก่า แต่ละปุ่มมีหลายตัวอักษร" },
-    { title: "คำใบ้ 2", text: "ใช้ตัวแรกของแต่ละปุ่ม: 6=M, 2=A, 6=N" },
-    { title: "เฉลย", text: "626 → MAN" },
-  ];
-  
-  const b2Hints = [
-    { title: "คำใบ้ 1", text: "ตัวอักษรที่แทน 'คุณ' ในภาษาอังกฤษคือ 'You'" },
-    { title: "คำใบ้ 2", text: "ลองวาดรูปตัวอักษร U บน grid (ซ้าย-ล่าง-ขวา)" },
-    { title: "เฉลย", text: "คำตอบคือ U (ออกเสียงว่า 'ยู' เหมือน 'you')" },
-  ];
 
-  const finalHints = [
-    { title: "คำใบ้ 1", text: "รวมชิ้นส่วนทั้งหมดที่ได้: ajparinlove + ??? + ???" },
-    { title: "คำใบ้ 2", text: "แปลงเป็น leet speak: A→4, E→3 เช่น manchester → m4nch3st3r" },
-    { title: "คำใบ้ 3", text: "man + chester = manchester, u + nited = united" },
-    { title: "เฉลย", text: "ajparinlovem4nch3st3runit3d" },
-  ];
-
-  function renderHintBox(hints: Array<{ title: string; text: string }>) {
-    return (
-      <div style={{ marginTop: 24, padding: 16, background: "#fef3c7", borderRadius: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: hintLevel > 0 ? 12 : 0 }}>
-          <span style={{ color: "#b45309", fontWeight: 600 }}>
-            <Lightbulb size={16} style={{ display: "inline", marginRight: 6 }} />
-            ระบบคำใบ้
-          </span>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              onClick={() => setHintLevel(v => Math.min(v + 1, hints.length))}
-              className="btn"
-              style={{ padding: "4px 12px", fontSize: 13 }}
-            >
-              เปิดคำใบ้ ({hintLevel}/{hints.length})
-            </button>
-            {hintLevel > 0 && (
-              <button onClick={() => setHintLevel(0)} className="btn" style={{ padding: "4px 12px", fontSize: 13 }}>
-                ปิด
-              </button>
-            )}
-          </div>
-        </div>
-        {hintLevel > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {hints.slice(0, hintLevel).map((h, i) => (
-              <div key={i} style={{ padding: 12, background: "rgba(255,255,255,0.8)", borderRadius: 8 }}>
-                <strong style={{ color: "#b45309" }}>{h.title}:</strong> {h.text}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
 
   // ===== MAIN RENDER =====
   return (
@@ -230,7 +171,7 @@ export default function FileBPage() {
       <div style={{ maxWidth: 800, margin: "0 auto 30px" }}>
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 20 }}>
           <button
-            onClick={() => { setCurrentStage("B1"); setMsg(null); setHintLevel(0); }}
+            onClick={() => { setCurrentStage("B1"); setMsg(null); }}
             className="btn"
             style={{
               padding: "12px 24px",
@@ -243,7 +184,7 @@ export default function FileBPage() {
             B1
           </button>
           <button
-            onClick={() => { setCurrentStage("B2"); setMsg(null); setHintLevel(0); }}
+            onClick={() => { setCurrentStage("B2"); setMsg(null); }}
             className="btn"
             style={{
               padding: "12px 24px",
@@ -256,7 +197,7 @@ export default function FileBPage() {
             B2
           </button>
           <button
-            onClick={() => { setCurrentStage("FINAL"); setMsg(null); setHintLevel(0); }}
+            onClick={() => { setCurrentStage("FINAL"); setMsg(null); }}
             className="btn"
             style={{
               padding: "12px 24px",
@@ -294,7 +235,7 @@ export default function FileBPage() {
                   <a href="/files" className="btn" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                     📂 ไปยังแฟ้มคดี B
                   </a>
-                  <button onClick={() => { setCurrentStage("B2"); setMsg(null); setHintLevel(0); }} className="btn btnPrimary">
+                  <button onClick={() => { setCurrentStage("B2"); setMsg(null); }} className="btn btnPrimary">
                     ไป Location-based <ArrowRight size={16} />
                   </button>
                 </div>
@@ -403,8 +344,6 @@ export default function FileBPage() {
                     {loading ? "..." : "ตรวจสอบ"}
                   </button>
                 </div>
-
-                {renderHintBox(b1Hints)}
               </>
             )}
 
@@ -443,7 +382,7 @@ export default function FileBPage() {
                   <a href="/files" className="btn" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                     📂 ไปยังแฟ้มคดี B
                   </a>
-                  <button onClick={() => { setCurrentStage("FINAL"); setMsg(null); setHintLevel(0); }} className="btn btnPrimary">
+                  <button onClick={() => { setCurrentStage("FINAL"); setMsg(null); }} className="btn btnPrimary">
                     ไปสร้าง Master Password <ArrowRight size={16} />
                   </button>
                 </div>
@@ -569,8 +508,6 @@ export default function FileBPage() {
                     </div>
                   )}
                 </div>
-
-                {renderHintBox(b2Hints)}
               </>
             )}
 
@@ -660,7 +597,7 @@ export default function FileBPage() {
                     fontStyle: "italic"
                   }}>
                     &quot;ในวันหยุดก่อนส่งเกรด อาจารย์กำลังจะไปเที่ยวที่เกาะ <strong style={{ color: "#1d4ed8" }}>England</strong> เพื่อพักผ่อน 
-                    และไปเชียร์ทีมที่อาจารย์ <strong style={{ color: "#dc2626" }}>รักกกกกกก</strong> มากที่สุด!&quot;
+                    และไปเชียร์สิ่งที่อาจารย์ <strong style={{ color: "#dc2626" }}>รักกกกกกก</strong> มากที่สุด!&quot;
                   </p>
                   <div style={{ 
                     marginTop: 16, 
@@ -736,8 +673,6 @@ export default function FileBPage() {
                     {loading ? "..." : "ปลดล็อก"}
                   </button>
                 </div>
-
-                {renderHintBox(finalHints)}
               </>
             )}
 
