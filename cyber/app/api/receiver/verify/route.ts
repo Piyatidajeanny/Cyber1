@@ -11,7 +11,7 @@ function checkAnswer(method: AuthMethod, input: string): boolean {
   const answers: Record<AuthMethod, (inp: string) => boolean> = {
     PASSWORD: (inp) => {
       const clean = inp.trim().toLowerCase();
-      return clean === "AJPARINlovem4nch3st3runit3d";
+      return clean === "ajparinlovem4nch3st3runit3d";
     },
     PIN: (inp) => inp.trim() === "08933", // 8 ตึก, 9 สำนัก, 33=พ.ศ.2533
     OTP: (inp) => {

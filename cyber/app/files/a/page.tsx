@@ -456,9 +456,9 @@ export default function Page() {
       </div>
 
       <div className="hero" style={{ marginBottom: 30, padding: 30 }}>
-        <h1>Case A: ลายเซ็นเงา</h1>
+        <h1>Cyber Security</h1>
         <p style={{ margin: "10px 0 20px" }}>
-          หลักฐานถูกจัดรูปแบบผิด... ตามหาชิ้นส่วนรหัสลับ 3 ชิ้น จากปริศนาในห้องเรียนเพื่อแก้ไขความถูกต้อง
+          ตามหาชิ้นส่วนรหัสลับ 3 ชิ้น จากปริศนาในห้องเรียนเพื่อกู้คืนรหัสของอาจารย์
         </p>
 
         {/* Status Bar inside Hero */}
@@ -762,7 +762,7 @@ export default function Page() {
 
             {s3Msg && <AlertMsg type={s3Msg.type} text={s3Msg.text} />}
 
-
+            
           </Card>
         )}
 
