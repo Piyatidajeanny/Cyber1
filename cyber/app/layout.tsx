@@ -2,7 +2,7 @@ import "./globals.css";
 import Navbar from "../components/Navbar";
 
 export const metadata = {
-  title: "คดีสุรนารีเงา",
+  title: "SUT Detective CTF ",
   description: "Detective CTF บน Next.js",
 };
 

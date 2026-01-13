@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Lock, ArrowRight, LogOut, User, Save, ShieldCheck, Eye, EyeOff, AlertTriangle, X, HelpCircle } from "lucide-react";
+import { Lock, ArrowRight, LogOut, User, Save, ShieldCheck, Eye, EyeOff, AlertTriangle, X, HelpCircle, Search } from "lucide-react";
 
 // --- 1. CONFIGURATION & LOGIC ---
 type Role = "STUDENT" | "TEACHER" | "ADMIN"; 
@@ -123,13 +123,13 @@ export default function WhitePurpleLogin() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempGrade, setTempGrade] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false); // เพิ่มตัวนี้
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   // State สำหรับ Dual Control Modal
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [approvalCode, setApprovalCode] = useState("");
   const [pendingSave, setPendingSave] = useState<{id: string, grade: string} | null>(null);
   const [approvalError, setApprovalError] = useState("");
-  const [showHint, setShowHint] = useState(false); // State สำหรับเปิด/ปิดคำใบ้
+  const [showHint, setShowHint] = useState(false); 
 
   // --- 1. Load Data ---
   useEffect(() => {
@@ -190,6 +190,15 @@ export default function WhitePurpleLogin() {
     setPassword("");
   };
 
+  // ฟังก์ชัน Reset ระบบ (Clear LocalStorage)
+  const handleSystemReset = () => {
+    if (window.confirm("คุณต้องการรีเซ็ตระบบกลับเป็นค่าเริ่มต้นใช่หรือไม่? \n(ข้อมูลที่แก้ไว้จะหายหมด)")) {
+      localStorage.removeItem("sut_grades");
+      localStorage.removeItem("sut_session_token");
+      window.location.reload(); 
+    }
+  };
+
   const canEdit = user ? ROLE_PERMISSIONS[user.role]?.includes("EDIT_GRADES") : false;
   
   const startEdit = (id: string, g: string) => { 
@@ -232,12 +241,56 @@ export default function WhitePurpleLogin() {
     
     .wp-container {
       min-height: 100vh;
-      padding-top: 40px; 
       background-color: #F3F0FF; 
       background-image: radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
       font-family: 'Inter', sans-serif; color: #1f2937;
+      display: flex;
+      flex-direction: column;
     }
-    .wp-content { max-width: 1000px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    
+    /* Header Styles (Can be removed if unused, but kept for safety) */
+    .wp-header {
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .wp-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .wp-logo-box {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #7C3AF2, #6d28d9);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
+    }
+    .wp-brand-text h1 { margin: 0; font-size: 16px; font-weight: 700; color: #111827; }
+    .wp-brand-text p { margin: 0; font-size: 12px; color: #6b7280; }
+    
+    .wp-nav { display: flex; align-items: center; gap: 24px; }
+    .wp-nav-link { text-decoration: none; color: #111827; font-weight: 600; font-size: 14px; }
+    .wp-btn-reset {
+        background: #fff7ed;
+        border: 1px solid #fdba74;
+        color: #c2410c;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .wp-btn-reset:hover { background: #ffedd5; }
+
+    .wp-content { width: 100%; max-width: 1000px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; align-items: center; flex-grow: 1; justify-content: center; }
+    
     .wp-card {
       background: white; border-radius: 24px; box-shadow: 0 10px 40px -10px rgba(124, 58, 237, 0.1);
       border: 1px solid rgba(124, 58, 237, 0.05); width: 100%; max-width: 480px; padding: 40px;
@@ -289,6 +342,9 @@ export default function WhitePurpleLogin() {
   return (
     <div className="wp-container">
       <style>{css}</style>
+      
+      {/* ⚠️ ลบส่วน Header ตรงนี้ออกแล้ว เพื่อไม่ให้ซ้ำกับ Layout ⚠️ */}
+
       <div className="wp-content">
         {!user ? (
           <div className="wp-card">
@@ -345,7 +401,7 @@ export default function WhitePurpleLogin() {
               </div>
              <div style={{ display: 'flex', gap: 8, alignItems: 'center', position: 'relative' }}>
                 
-                {/* 1. ปุ่ม Hint */}
+                {/* 2. ปุ่ม Hint */}
                 <button 
                   onClick={() => setShowHint(!showHint)} 
                   style={{ background: showHint ? '#F3F0FF' : 'white', border: '1px solid #e5e7eb', padding: '8px 12px', borderRadius: 8, fontSize: 12, color: '#7C3AF2', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
@@ -353,12 +409,12 @@ export default function WhitePurpleLogin() {
                   <HelpCircle size={14} /> {showHint ? "ปิดคำใบ้" : "คำใบ้"}
                 </button>
 
-                {/* 2. ปุ่ม Sign Out (อันเดิม) */}
+                {/* 3. ปุ่ม Sign Out (อันเดิม) */}
                 <button onClick={handleLogout} style={{ background: 'white', border: '1px solid #e5e7eb', padding: '8px 12px', borderRadius: 8, fontSize: 12, color: '#4b5563', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <LogOut size={14} /> Sign Out
                 </button>
 
-                {/* 3. กล่องข้อความ Hint (Popup) */}
+                {/* 4. กล่องข้อความ Hint (Popup) */}
                 {showHint && (
                   <div style={{ 
                     position: 'absolute', 
@@ -378,8 +434,8 @@ export default function WhitePurpleLogin() {
                   }}>
                       <div style={{marginBottom: 8, fontWeight: 700, color: '#111827', display:'flex', alignItems:'center', gap:6}}>💡 อย่าลืมไปอาคาร<strong>F12</strong></div>
                       ถ้ามีอุปสรรคอย่าลืมบอกลุงconsoleว่า...<br/>
-                     <strong>allow pasting</strong> ค่อยๆบอกลุงนะ<br/>
-                     เสร็จเเล้วก็ลองไปเเลกของกับลุง<strong>base6...</strong> นะ<br/>
+                      <strong>allow pasting</strong> ค่อยๆบอกลุงนะ<br/>
+                      เสร็จเเล้วก็ลองไปเเลกของกับลุง<strong>base6...</strong> นะ<br/>
                       
                   </div>
                 )}

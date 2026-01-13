@@ -9,6 +9,8 @@ export default function Navbar() {
     if (!confirm("ต้องการรีเซ็ตข้อมูลการสืบสวนทั้งหมดหรือไม่?")) return;
     try {
       setBusy(true);
+      // ✅ เพิ่มบรรทัดนี้เพื่อล้าง Local Storage
+      localStorage.clear();
       await fetch("/api/session/reset", { method: "POST" });
       window.location.href = "/";
     } finally {
