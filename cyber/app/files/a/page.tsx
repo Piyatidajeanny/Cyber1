@@ -320,7 +320,10 @@ export default function Page() {
         body: JSON.stringify({ caseId: "A", input: ans }),
       });
       const j = await res.json();
-      if (j.ok) setFinalMsg({ type: "ok", text: j.message || "ไขคดีสำเร็จ!" });
+      if (j.ok) {
+        setFinalMsg({ type: "ok", text: j.message || "ไขคดีสำเร็จ!" });
+        setCasePassed(true);
+      }
       else setFinalMsg({ type: "err", text: j.message || "คำตอบยังไม่ถูกต้อง" });
     } catch (e) {
       setFinalMsg({ type: "err", text: "เกิดข้อผิดพลาดในการเชื่อมต่อ" });

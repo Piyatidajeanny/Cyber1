@@ -9,10 +9,10 @@ type Props = {
 export default function CaseCard({ title, subtitle, href, status = "OPEN", tag }: Props) {
   const badge =
     status === "DONE"
-      ? <span className="badge badgeOk">✅ DONE</span>
+      ? <span className="badge badgeOk" style={{ whiteSpace: "nowrap" }}>✅ DONE</span>
       : status === "LOCKED"
-        ? <span className="badge badgeLocked">🔒 LOCKED</span>
-        : <span className="badge">📂 OPEN</span>;
+        ? <span className="badge badgeLocked" style={{ whiteSpace: "nowrap" }}>🔒 LOCKED</span>
+        : <span className="badge" style={{ whiteSpace: "nowrap" }}>📂 OPEN</span>;
 
   return (
     <a
