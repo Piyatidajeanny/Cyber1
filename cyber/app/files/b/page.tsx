@@ -404,7 +404,7 @@ export default function FileBPage() {
                     <p style={{ margin: "12px 0 0 0", fontSize: 14 }}>
                       "ระบบตรวจพบการเข้าถึงจากตำแหน่งที่ไม่รู้จัก<br/>
                       กรุณาวาดรูปแบบยืนยันตัวตนบน Security Grid<br/>
-                      <span style={{ color: "#fbbf24" }}>Hint: รูปแบบที่ถูกต้องคือตัวอักษรที่แทน &apos;คุณ&apos; ในภาษาอังกฤษ</span>"
+                      <span style={{ color: "#fbbf24" }}>Hint: รูปแบบที่ถูกต้องคือตัวอักษรที่แทน &apos;คุณ&apos; </span>"
                     </p>
                   </div>
                   
